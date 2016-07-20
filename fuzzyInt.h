@@ -19,8 +19,7 @@
 #define Foutput_t float
 #define Ftype_t   float
 */
-#define MAXINMBNUM 0x07 
-#define MAXRULE  0x31
+
 
 #define MAXVALUE     32767
 
@@ -109,9 +108,7 @@ typedef struct {
 	uint8_t _in1ActNum;
 	uint8_t _in2Active[MAXINMBNUM];
 	uint8_t _in2ActNum;
-//	uint8_t _fuzzifiType;
-//	uint8_t _andType;
-//	uint8_t _impType;
+
 	Finput_t _inMaxR[2];
 	Finput_t _inMaxL[2];
 
@@ -126,64 +123,7 @@ void fuzzyInit(Fuzzy *fy,FuzzyInput *in1, FuzzyInput *in2, FuzzyRule *rule) {
 	fy->_inMaxR[1] =  fy->_input2->_maxInRangeR;
 	fy->_inMaxL[1] =  fy->_input2->_maxInRangeL;
 }
-/*
-int8_t setFuzzifiType(Fuzzy *fy, uint8_t fuzziType) {
-	int8_t state = 0;
 
-	switch(fuzziType) {
-		case 0:
-			fy->_fuzzifiType = 0;
-			state = 0;
-			break;
-		case 1:
-			fy->_fuzzifiType = 1;
-			state = 0;
-			break;
-		default:
-			state = -1;
-			break;
-	}   
-	return state;
-}
-
-int8_t setAndType(Fuzzy *fy, uint8_t andType) {
-	int8_t state = 0;
-
-	switch(andType) {
-		case 0:
-			fy->_andType = 0;
-			state = 0;
-			break;
-		case 1:
-			fy->_andType = 1;
-			state = 0;
-			break;
-		default:
-			state = -1;
-			break;
-	}   
-	return state;
-}
-
-int8_t setImpType(Fuzzy *fy,uint8_t impType) {
-	int8_t state = 0;
-
-	switch(impType) {
-		case 0:
-			fy->_impType = 0;
-			state = 0;
-			break;
-		case 1:
-			fy->_impType = 1;
-			state = 0;
-			break;
-		default:
-			state = -1;
-			break;
-	}   
-	return state;
-}
-*/
 int8_t degOfFire(Fuzzy *fy, Finput_t sysin1, Finput_t sysin2) {
 	Ftype_t d1=0.0,v1=0.0,v2=0.0;
 	uint8_t index=0,i=0,j=0;
@@ -239,8 +179,7 @@ int8_t degOfFire(Fuzzy *fy, Finput_t sysin1, Finput_t sysin2) {
 		if(v1 != 0) {
 			fy->_in1Active[i] = index;
 			#ifdef _debug
-			printf("Input0 MF%d Degree:%d\r\n",index,v1);
-//			printf("Input0 MF%d Degree:%E\r\n",index,v1);
+				printf("Input0 MF%d Degree:%d\r\n",index,v1);
 			#endif
 			i++;
 			fy->_in1ActNum = i;
@@ -251,8 +190,7 @@ int8_t degOfFire(Fuzzy *fy, Finput_t sysin1, Finput_t sysin2) {
 		if(v2 != 0) {
 			fy->_in2Active[j] = index;
 			#ifdef _debug
-			printf("Input1 MF%d Degree:%d\r\n",index,v2);
-//			printf("Input1 MF%d Degree:%E\r\n",index,v2);
+				printf("Input1 MF%d Degree:%d\r\n",index,v2);
 			#endif
 			j++;
 			fy->_in2ActNum = j;
@@ -264,71 +202,25 @@ Foutput_t deFuzzication(Fuzzy *fy) {
 	uint8_t j,i,ri1,ri2;
 	Foutput_t valuei=0.0,num=0.0,den=0.0,a1=0.0,result=0.0;
 	Foutput_t valueo=0.0;
-/*
-	switch(fy->_andType) {
-		case 0:
-			for(j=0; j<fy->_in2ActNum; j++) {
-				for(i=0; i<fy->_in1ActNum; i++) {
-					ri1 = fy->_in1Active[i];
-					ri2 = fy->_in2Active[j];
-					valuei = min(fy->_in1Degree[ri1],fy->_in2Degree[ri2]);
 
-					valueo = getRule(fy->_rule1,ri1,ri2);
+	for(j=0; j<fy->_in2ActNum; j++) {
+		for(i=0; i<fy->_in1ActNum; i++) {
+			ri1 = fy->_in1Active[i];
+			ri2 = fy->_in2Active[j];
+			valuei = _and(fy->_in1Degree[ri1], fy->_in2Degree[ri2]);
 
-					switch(fy->_impType) {
-						case 0:
-							a1 = min((double)valuei, (double)valueo);
-							break;
-						case 1:
-							a1 = (double)valuei * (double)valueo;
-							break;
-						default:
-							break;
-					}
-					num = num + a1;
-					den = den + valuei;
-				}   
-			}
-			result = num / den;
-			break;
-		case 1:
-*/
-			for(j=0; j<fy->_in2ActNum; j++) {
-				for(i=0; i<fy->_in1ActNum; i++) {
-					ri1 = fy->_in1Active[i];
-					ri2 = fy->_in2Active[j];
-					valuei = fy->_in1Degree[ri1] * fy->_in2Degree[ri2];
+			valueo = getRule(fy->_rule1, ri1, ri2);
 
-					valueo = getRule(fy->_rule1,ri1,ri2);
+			a1 = _imp(valuei, valueo);
 
-					a1 = valuei * valueo;
-/*
-					switch(fy->_impType) {
-						case 0:
-							a1 = min((double)valuei, (double)valueo);
-							break;
-						case 1:
-							a1 = (double)valuei * (double)valueo;
-							break;
-						default:
-							break;
-					}
-*/
-					num = num + a1;
-					den = den + valuei;
-//					printf("%d %d %f %f %f %f\n",ri1,ri2,valuei,valueo,num,den);
-//					printf("%d %d %d %d %d %d\n",ri1,ri2,valuei,valueo,num,den);
-				}
-			}
-			result = (den == 0) ? 0 : (num / den);
-//			result = num / den;
-/*
-			break;
-		default:
-
-			break;  
+			num = num + a1;
+			den = den + valuei;
+//			printf("%d %d %f %f %f %f\n",ri1,ri2,valuei,valueo,num,den);
+//			printf("%d %d %d %d %d %d\n",ri1,ri2,valuei,valueo,num,den);
+		}
 	}
-*/ 
+	result = (den == 0) ? 0 : (num / den);
+
 	return result;
 }
 

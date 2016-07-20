@@ -1,10 +1,16 @@
 #ifndef FUZZYSETUP_H
 #define FUZZYSETUP_H
 
-#include "fuzzyInt.h"
+#define MAXINMBNUM 0x07
+#define MAXRULE  0x31
 
 #define IN_MAXVALUE   1024
 #define OUT_MAXVALUE  32767
+
+#define _and(a, b) ((a)*(b))
+#define _imp(a, b) ((a)*(b))
+
+#include "fuzzyInt.h"
 
 //PD-type Sugeno Fuzzy Module
 
@@ -92,7 +98,7 @@ void FuzzySetup(void) {
 
 //	setFuzzifiType(&Af,0);
 //	setAndType(&Af,1);
-//	setImpType(&Af,1);
+
 }
 
 
